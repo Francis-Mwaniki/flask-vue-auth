@@ -3,11 +3,17 @@
     <div class="wrapper">
       <h1>Dashboard</h1>
       <p>
-        Welcome to your dashboard, <strong>{{ user }}</strong
-        >!
+        Welcome to your dashboard,
+        <strong>
+          <span v-if="loading" class="spinner-border spinner-border-sm"></span>
+          <span v-else>{{ user }}</span>
+        </strong>
       </p>
       <p>
-        <a @click="logout" href="#" class="logout">Logout</a>
+        <a @click="logout" href="#" class="logout">
+          <span v-if="logging_out" class="spinner-border spinner-border-sm"></span>
+          <span v-else>Logout</span>
+        </a>
       </p>
     </div>
   </div>
@@ -20,20 +26,33 @@ export default {
   data() {
     return {
       user: localStorage.getItem("user"),
+      loading: true,
+      logging_out: false,
     };
   },
   methods: {
     logout() {
+      this.logging_out = true;
       localStorage.removeItem("user");
-      toast("Logging out!", {
-        autoClose: 3000,
+      toast.info("Logging out!", {
+        autoClose: 7000,
+        transition: "zoom",
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "dark",
       });
-      this.$router.push("/login");
+      setTimeout(() => {
+        this.logging_out = false;
+        this.$router.push("/login");
+      }, 7000);
     },
   },
 
   mounted() {
     this.user = localStorage.getItem("user");
+
+    setTimeout(() => {
+      this.loading = false;
+    }, 5000);
 
     if (!this.user) {
       this.$router.push("/login");
@@ -82,5 +101,39 @@ export default {
 .wrapper p a {
   color: #000000;
   text-decoration: none;
+}
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: spinner-border 0.75s linear infinite;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@-webkit-keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spinner-border-sm {
+  height: 1rem;
+  border-width: 0.2em;
 }
 </style>

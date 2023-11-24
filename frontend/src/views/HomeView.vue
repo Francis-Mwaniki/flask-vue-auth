@@ -4,7 +4,10 @@
     <input type="text" v-model="username" placeholder="Username" />
     <input type="email" v-model="email" placeholder="Email" />
     <input type="password" v-model="password" placeholder="Password" />
-    <button @click="register">Register</button>
+    <button @click="register">
+      <span v-if="loading" class="spinner-border spinner-border-sm"></span>
+      <span v-else>Register</span>
+    </button>
 
     <p>Already have an account? <router-link to="/login">Login</router-link></p>
   </div>
@@ -19,10 +22,12 @@ export default {
       username: "",
       email: "",
       password: "",
+      loading: false,
     };
   },
   methods: {
     async register() {
+      this.loading = true;
       try {
         const response = await this.$axios.post("/register", {
           username: this.username,
@@ -31,19 +36,31 @@ export default {
         });
         console.log(response.data);
         if (response.data === "ok") {
-          toast("logging ..", {
-            autoClose: 3000,
+          this.loading = false;
+          toast.success("logging ..", {
+            autoClose: 7000,
+            transition: "zoom",
+            position: toast.POSITION.BOTTOM_CENTER,
+            theme: "dark",
           });
           this.$router.push("/login");
         }
         if (response.data === "User already exists") {
-          toast("User already exists", {
-            autoClose: 3000,
+          this.loading = false;
+          toast.error("User already exists", {
+            autoClose: 7000,
+            transition: "zoom",
+            position: toast.POSITION.BOTTOM_CENTER,
+            theme: "dark",
           });
         }
       } catch (error) {
-        toast(error?.message, {
-          autoClose: 3000,
+        this.loading = false;
+        toast.error(error?.message, {
+          autoClose: 7000,
+          transition: "zoom",
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "dark",
         });
         console.log(error);
       }
@@ -115,5 +132,39 @@ input[type="email"]:focus,
 input[type="password"]:focus {
   outline: none;
   border-color: #aaa;
+}
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: spinner-border 0.75s linear infinite;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@-webkit-keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spinner-border-sm {
+  height: 1rem;
+  border-width: 0.2em;
 }
 </style>

@@ -4,7 +4,10 @@
     <!-- Reset Password Form Elements -->
 
     <input type="email" v-model="email" placeholder="Email" />
-    <button @click="resetPassword">Reset Password</button>
+    <button @click="resetPassword">
+      <span v-if="loading" class="spinner-border spinner-border-sm"></span>
+      <span v-else>Reset Password</span>
+    </button>
 
     <!-- Login Link -->
     <p>Remember your password? <router-link to="/login">Login</router-link></p>
@@ -18,14 +21,19 @@ export default {
   data() {
     return {
       email: "",
+      loading: false,
     };
   },
   methods: {
     async resetPassword() {
       try {
+        this.loading = true;
         if (!this.email) {
-          toast("Please enter your email!", {
-            autoClose: 6000,
+          toast.error("Please enter your email!", {
+            autoClose: 7000,
+            transition: "zoom",
+            position: toast.POSITION.BOTTOM_CENTER,
+            theme: "dark",
           });
           return;
         }
@@ -34,16 +42,27 @@ export default {
         });
 
         if (response.data === "ok") {
-          toast("Reset password link sent!" + this.email, {
-            autoClose: 6000,
+          this.loading = false;
+          toast.success("Reset password link sent to" + " " + this.email, {
+            autoClose: 7000,
+            transition: "zoom",
+            position: toast.POSITION.BOTTOM_CENTER,
+            theme: "dark",
           });
-          this.$router.push({ name: "Update" });
+
+          setTimeout(() => {
+            this.$router.push({ name: "Update" });
+          }, 7000);
         }
 
-        toast("User not found!", {
-          autoClose: 6000,
+        toast.info(response.data, {
+          autoClose: 7000,
+          transition: "zoom",
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "dark",
         });
       } catch (error) {
+        this.loading = false;
         console.error(error); // Handle password reset error
       }
     },
@@ -110,5 +129,40 @@ input[type="email"]:focus,
 input[type="password"]:focus {
   outline: none;
   border-color: #aaa;
+}
+
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: spinner-border 0.75s linear infinite;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@-webkit-keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spinner-border-sm {
+  height: 1rem;
+  border-width: 0.2em;
 }
 </style>

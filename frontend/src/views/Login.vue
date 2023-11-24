@@ -6,7 +6,10 @@
 
     <!-- forgot password -->
     <p>Forgot password? <router-link to="/reset">Reset</router-link></p>
-    <button @click="login">Login</button>
+    <button @click="login">
+      <span v-if="loading" class="spinner-border spinner-border-sm"></span>
+      <span v-else>Login</span>
+    </button>
 
     <!-- Register Link -->
     <p>Don't have an account? <router-link to="/">Register</router-link></p>
@@ -21,29 +24,44 @@ export default {
     return {
       email: "",
       password: "",
+      loading: false,
     };
   },
   methods: {
     async login() {
+      this.loading = true;
       try {
         const response = await this.$axios.post("/login", {
           email: this.email,
           password: this.password,
         });
         if (response.data === "ok") {
-          toast("login successful!", {
-            autoClose: 3000,
+          this.loading = false;
+          toast.success("login successful you'll be redirected..", {
+            autoClose: 7000,
+            transition: "zoom",
+            position: toast.POSITION.BOTTOM_CENTER,
+            theme: "dark",
           });
           localStorage.setItem("user", this.email);
-          this.$router.push("/dashboard");
+          setTimeout(() => {
+            this.$router.push("/dashboard");
+          }, 7000);
         }
 
-        toast(response.data, {
-          autoClose: 3000,
+        toast.success(response.data, {
+          autoClose: 7000,
+          transition: "zoom",
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "dark",
         });
       } catch (error) {
-        toast(error.message, {
-          autoClose: 3000,
+        this.loading = false;
+        toast.error(error.message, {
+          autoClose: 7000,
+          transition: "zoom",
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "dark",
         });
         console.log(error);
       }
@@ -123,5 +141,39 @@ input[type="email"]:focus,
 input[type="password"]:focus {
   outline: none;
   border-color: #aaa;
+}
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: spinner-border 0.75s linear infinite;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@-webkit-keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spinner-border-sm {
+  height: 1rem;
+  border-width: 0.2em;
 }
 </style>

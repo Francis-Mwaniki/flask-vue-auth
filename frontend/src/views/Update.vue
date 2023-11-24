@@ -4,7 +4,10 @@
     <!-- Update Password Form Elements -->
     <input type="text" v-model="resetToken" placeholder="Reset Token" />
     <input type="password" v-model="newPassword" placeholder="New Password" />
-    <button @click="updatePassword">Update Password</button>
+    <button @click="updatePassword">
+      <span v-if="loading" class="spinner-border spinner-border-sm"></span>
+      <span v-else>Update password</span>
+    </button>
   </div>
 </template>
 
@@ -16,10 +19,12 @@ export default {
     return {
       resetToken: "",
       newPassword: "",
+      loading: false,
     };
   },
   methods: {
     async updatePassword() {
+      this.loading = true;
       try {
         const response = await this.$axios.post("/update-password", {
           reset_token: this.resetToken,
@@ -27,17 +32,28 @@ export default {
         });
 
         if (response.data === "ok") {
-          toast("Password updated!", {
-            autoClose: 3000,
+          this.loading = false;
+          toast.success("Password updated!", {
+            autoClose: 7000,
+            transition: "zoom",
+            position: toast.POSITION.BOTTOM_CENTER,
+            theme: "dark",
           });
           this.$router.push("/login");
         }
-        toast("invalid token", {
-          autoClose: 3000,
+        toast.error("invalid token", {
+          autoClose: 7000,
+          transition: "zoom",
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "dark",
         });
       } catch (error) {
-        toast("invalid password!", {
-          autoClose: 3000,
+        this.loading = false;
+        toast.error("invalid password!", {
+          autoClose: 7000,
+          transition: "zoom",
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "dark",
         });
         console.error(error); // Handle password update error
       }
@@ -105,5 +121,39 @@ input[type="email"]:focus,
 input[type="password"]:focus {
   outline: none;
   border-color: #aaa;
+}
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: spinner-border 0.75s linear infinite;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@-webkit-keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-border {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spinner-border-sm {
+  height: 1rem;
+  border-width: 0.2em;
 }
 </style>
