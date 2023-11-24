@@ -1,1 +1,12 @@
-[Video Preview](./Screencast%20from%2024-11-2023%2009:01:51%20ASUBUHI.webm)
+![Register](./register.png)
+
+![Image Description](./login.png)
+
+
+![Image Description](./dashboard.png)
+
+
+![Image Description](./reset.png)
+
+
+![Image Description](./update.png)
